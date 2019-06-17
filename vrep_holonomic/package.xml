@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>vrep_holonomic</name>
+  <version>1.2.0</version>
+  <description>
+    ROS packages for the holonomic mobile platform (meta package)
+  </description>
+  <license>TODO</license>
+  <maintainer email="jaehyunlim@yonsei.ac.kr">Jaehyun Lim</maintainer>
+  <url type="website">https://mlcs.yonsei.ac.kr</url>
+  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>vrep_holonomic_bringup</exec_depend>
+  <exec_depend>vrep_holonomic_description</exec_depend>
+  <exec_depend>vrep_holonomic_mpc</exec_depend>
+  <exec_depend>vrep_holonomic_slam</exec_depend>
+  <export><metapackage/></export>
+</package>

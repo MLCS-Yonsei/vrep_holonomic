@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>vrep_holonomic_bringup</name>
+  <version>1.1.0</version>
+  <description>Machine Learning and Control Systems Lab.</description>
+  <license>TODO</license>
+  <maintainer email="jaehyunlim@yonsei.ac.kr">Jaehyun Lim</maintainer>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>roscpp</depend>
+  <depend>rospy</depend>
+  <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>tf</depend>
+  <exec_depend>vrep_holonomic_description</exec_depend>
+</package>
