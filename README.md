@@ -2,7 +2,7 @@
 
 ROS V-rep simulation package for Mechanum-wheeled mobile robot
 
-
+\
 
 ## Requirements
 
@@ -16,7 +16,7 @@ http://www.coppeliarobotics.com/downloads.html
 This package uses the python 2.7  version of Casadi
 https://web.casadi.org/get/
 
-
+\
 
 ## Run
 
