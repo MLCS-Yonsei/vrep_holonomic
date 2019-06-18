@@ -24,6 +24,7 @@ from casadi import *
 
 
 class Parameters:
+
     '''
     param: Symbolic variables
     ub: Upper bounds for symbolic variables
@@ -31,7 +32,9 @@ class Parameters:
     add_inequality(constraints, ub, lb): Adds symbolic variables and its bounds.
     add_equality(constraints): Adds symbolic variables. Bounds of the variables are set to be 0
     '''
+
     def __init__(self, name=None):
+
         self.name = name
         if type(name)==type(None):
             self.param = SX.zeros(0)
@@ -42,6 +45,7 @@ class Parameters:
 
 
     def add_inequality(self, constraints, ub=None, lb=None):
+
         self.param = vertcat(self.param, constraints)
         if type(ub)==type(None):
             self.ub = np.concatenate([self.ub, float('inf')*np.ones([constraints.shape[0]])])
@@ -54,9 +58,20 @@ class Parameters:
 
 
     def add_equality(self, constraints):
+
         self.param = vertcat(self.param, constraints)
         self.ub = np.concatenate([self.ub, np.zeros([constraints.shape[0]])])
         self.lb = np.concatenate([self.lb, np.zeros([constraints.shape[0]])])
+
+
+    def __add__(self, other):
+
+        temp = Parameters(self.name + '+' + other.name)
+        temp.param = vertcat(self.param, other.param)
+        temp.ub = np.concatenate([self.ub, other.ub])
+        temp.lb = np.concatenate([self.lb, other.lb])
+
+        return temp
 
 
 
@@ -75,8 +90,9 @@ class MPC_controller:
         self.gyaw = 0
         self.use_odom = rospy.get_param("/vrep_holonomic_mpc/use_odom")
         self.target_sub = rospy.Subscriber("/move_base_simple/goal", PoseStamped, self.targetCallback)
-        self.odom_sub = rospy.Subscriber("/odom", Odometry, self.odomCallback)
         self.tfListener = TransformListener()
+        self.odom_sub = rospy.Subscriber("/odom", Odometry, self.odomCallback)
+        self.odomCallback(rospy.wait_for_message("/odom"))
 
         #declare velocity publisher
         self.vel_msg = Twist()
@@ -244,9 +260,7 @@ class MPC_controller:
             
         # make the decision variables one column vector, these alternate between
         # states 
-        OPT_variables = vertcat(X.param, U.param)
-        ubx = np.concatenate([X.ub, U.ub])
-        lbx = np.concatenate([X.lb, U.lb])
+        OPT_variables = X.param + U.param
 
         opts = {
             'ipopt.max_iter': 2000,
@@ -256,10 +270,10 @@ class MPC_controller:
             'ipopt.acceptable_obj_change_tol': 1e-6
         }
 
-        nlp_prob = {'f':obj, 'x':OPT_variables, 'g':g.param, 'p':P}
+        nlp_prob = {'f':obj, 'x':OPT_variables.param, 'g':g.param, 'p':P}
         self.solver = nlpsol('solver', 'ipopt', nlp_prob, opts)
 
-        self.args = {'lbg':g.lb,'ubg':g.ub,'lbx':lbx,'ubx':ubx}#, 'p':P, 'x0':P[0:3]}
+        self.args = {'lbg':g.lb,'ubg':g.ub,'lbx':OPT_variables.lb,'ubx':OPT_variables.ub}#, 'p':P, 'x0':P[0:3]}
         self.u0 = np.zeros((N, self.n_controls))
 
 
