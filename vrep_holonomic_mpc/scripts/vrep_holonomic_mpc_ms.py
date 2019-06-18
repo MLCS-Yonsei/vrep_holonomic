@@ -33,15 +33,41 @@ class Parameters:
     add_equality(constraints): Adds symbolic variables. Bounds of the variables are set to be 0
     '''
 
-    def __init__(self, name=None):
+    def __init__(self, name=None, param=None, ub=None, lb=None):
 
         self.name = name
-        if type(name)==type(None):
+        if type(param)==type(None):
             self.param = SX.zeros(0)
+            self.ub = np.array([])
+            self.lb = np.array([])
         else:
-            self.param = SX.sym(name, 0)
-        self.ub = np.array([])
-        self.lb = np.array([])
+            self.param = param
+            if type(ub)==type(None):
+                self.ub = float('inf')*np.ones(param.shape)
+            else:
+                self.ub = ub
+            if type(lb)==type(None):
+                self.lb = -float('inf')*np.ones(param.shape)
+            else:
+                self.lb = lb
+
+
+    def __add__(self, other):
+
+        temp = Parameters(self.name + '+' + other.name)
+        temp.param = vertcat(self.param, other.param)
+        temp.ub = np.concatenate([self.ub, other.ub])
+        temp.lb = np.concatenate([self.lb, other.lb])
+
+        return temp
+
+
+    def __getitem__(self, key):
+        return {
+            'param':self.param[key],
+            'ub':self.ub[key],
+            'lb':self.lb[key]
+        }
 
 
     def add_inequality(self, constraints, ub=None, lb=None):
@@ -62,16 +88,6 @@ class Parameters:
         self.param = vertcat(self.param, constraints)
         self.ub = np.concatenate([self.ub, np.zeros([constraints.shape[0]])])
         self.lb = np.concatenate([self.lb, np.zeros([constraints.shape[0]])])
-
-
-    def __add__(self, other):
-
-        temp = Parameters(self.name + '+' + other.name)
-        temp.param = vertcat(self.param, other.param)
-        temp.ub = np.concatenate([self.ub, other.ub])
-        temp.lb = np.concatenate([self.lb, other.lb])
-
-        return temp
 
 
 
