@@ -98,17 +98,11 @@ class MPC_controller:
         rospy.init_node('vrep_holonomic_mpc', anonymous=True)
         time.sleep(1)
 
-        self.curx = 0
-        self.cury = 0
-        self.curyaw = 0
-        self.gx = 0
-        self.gy = 0
-        self.gyaw = 0
         self.use_odom = rospy.get_param("/vrep_holonomic_mpc/use_odom")
         self.target_sub = rospy.Subscriber("/move_base_simple/goal", PoseStamped, self.targetCallback)
         self.tfListener = TransformListener()
         self.odom_sub = rospy.Subscriber("/odom", Odometry, self.odomCallback)
-        self.odomCallback(rospy.wait_for_message("/odom"))
+        self.gx = self.gy = self.gyaw = None
 
         #declare velocity publisher
         self.vel_msg = Twist()
@@ -123,30 +117,40 @@ class MPC_controller:
 
     def pose_from_tf(self):
 
-        position, quaternion = self.tfListener.lookupTransform(
-            "/map",
-            "/base_footprint",
-            self.tfListener.getLatestCommonTime("/map", "/base_footprint")
+        try:
+            position, quaternion = self.tfListener.lookupTransform(
+                "/map",
+                "/base_footprint",
+                self.tfListener.getLatestCommonTime("/map", "/base_footprint")
+            )
+            self.curx = position[0]
+            self.cury = position[1]
+            (roll, pitch, yaw) = euler_from_quaternion(quaternion)
+            self.curyaw = yaw
+        except rospy.ROSException:
+            rospy.loginfo(
+                "Warn: base_footprint - No transform from [base_footprint] to [map]."
+            )
+
+
+    def pose_from_msg(self, msg):
+
+        self.curx = msg.pose.pose.position.x
+        self.cury = msg.pose.pose.position.y
+        quat = (
+            msg.pose.pose.orientation.x,
+            msg.pose.pose.orientation.y,
+            msg.pose.pose.orientation.z,
+            msg.pose.pose.orientation.w
         )
-        self.curx = position[0]
-        self.cury = position[1]
-        (roll, pitch, yaw) = euler_from_quaternion(quaternion)
+        (roll, pitch, yaw) = euler_from_quaternion(quat)
         self.curyaw = yaw
 
 
     def odomCallback(self, msg):
 
         if self.use_odom:
-            self.curx = msg.pose.pose.position.x
-            self.cury = msg.pose.pose.position.y
-            quat = (
-                msg.pose.pose.orientation.x,
-                msg.pose.pose.orientation.y,
-                msg.pose.pose.orientation.z,
-                msg.pose.pose.orientation.w
-            )
-            (roll, pitch, yaw) = euler_from_quaternion(quat)
-            self.curyaw = yaw
+            self.pose_from_msg(msg)
         else:
             self.pose_from_tf()
 
@@ -172,7 +176,8 @@ class MPC_controller:
     def publish_vel(self):
 
         if not self.use_odom:
-            self.pose_from_tf(self.tfListener) # Robot pose from /tf if use_odom is False
+            # Robot pose from /tf if use_odom is False
+            self.pose_from_tf(self.tfListener)
 
         if self.compute_err() < 0.05:
             vel = [0.0, 0.0, 0.0]
@@ -186,14 +191,17 @@ class MPC_controller:
 
 
     def compute_err(self):
-        yawdiff = self.gyaw - self.curyaw
-        if yawdiff > math.pi:
-            yawdiff -= 2.0*math.pi
-        elif yawdiff < -math.pi:
-            yawdiff += 2.0*math.pi
-        return np.linalg.norm(
-            (self.gx - self.curx, self.gy - self.cury, yawdiff)
-        )
+        if type(self.gyaw)==type(None):
+            return 0.0
+        else:
+            yawdiff = self.gyaw - self.curyaw
+            if yawdiff > math.pi:
+                yawdiff -= 2.0*math.pi
+            elif yawdiff < -math.pi:
+                yawdiff += 2.0*math.pi
+            return np.linalg.norm(
+                (self.gx - self.curx, self.gy - self.cury, yawdiff)
+            )
 
 
     def setup_MPC(self):
@@ -276,7 +284,7 @@ class MPC_controller:
             
         # make the decision variables one column vector, these alternate between
         # states 
-        OPT_variables = X.param + U.param
+        OPT_variables = X + U
 
         opts = {
             'ipopt.max_iter': 2000,
