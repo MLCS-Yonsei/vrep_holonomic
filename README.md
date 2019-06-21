@@ -30,6 +30,11 @@ roslaunch vrep_holonomic_bringup bringup.launch vrep_path:=/path/to/vrep
 roslaunch vrep_holonomic_slam gmapping.launch
 ```
 
+### Localization only (AMCL)
+```bash
+roslaunch vrep_holonomic_slam amcl.launch
+```
+
 ### MPC
 multiple shooting:
 ```bash
