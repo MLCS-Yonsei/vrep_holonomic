@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="robot" default="holonomic"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="paused" default="false"/>
+  <arg name="auto_quit" default="true"/>
+
+  <arg name="vrep_path" default="/opt/vrep"/>
+  <arg name="scene_file" default="$(find vrep_holonomic_bringup)/scene/dynamic_obstacles.ttt"/>
+
+  <node pkg="vrep_holonomic_bringup" type="vrep_holonomic_bringup_simulator.py" name="vrep_holonomic_bringup_simulator"  output="screen">
+    <param name="vrep_path" value="$(arg vrep_path)"/>
+    <param name="gui" value="$(arg gui)"/>
+    <param name="paused" value="$(arg paused)"/>
+    <param name="scene_file" value="$(arg scene_file)"/>
+    <param name="auto_quit" value="$(arg auto_quit)"/>
+  </node>
+    
+</launch>

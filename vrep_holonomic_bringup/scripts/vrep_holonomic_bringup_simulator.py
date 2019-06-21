@@ -10,17 +10,23 @@ subprocess.call(
 )
 
 vrep_path = rospy.get_param("/vrep_holonomic_bringup_simulator/vrep_path")
-viz = rospy.get_param("/vrep_holonomic_bringup_simulator/visuallization")
+gui = rospy.get_param("/vrep_holonomic_bringup_simulator/gui")
 scene = rospy.get_param("/vrep_holonomic_bringup_simulator/scene_file")
+paused = rospy.get_param("/vrep_holonomic_bringup_simulator/paused")
+auto_quit = rospy.get_param("/vrep_holonomic_bringup_simulator/auto_quit")
 
-if viz:
+if gui:
     vrep_exec = vrep_path+"/vrep.sh "
     t_val = 5.0
 else:
     vrep_exec = vrep_path+"/vrep.sh -h "
     t_val = 1.0
+if not paused:
+    vrep_exec = vrep_exec+"-s "
+if auto_quit:
+    vrep_exec = vrep_exec+"-q "
 subprocess.call(
-    vrep_exec+"-s -q "+scene+" &",
+    vrep_exec+scene+" &",
     shell=True
 )
 time.sleep(t_val)      

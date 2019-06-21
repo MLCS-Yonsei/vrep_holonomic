@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="robot" default="holonomic"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="init_pos_x" default="0.0"/>
+  <arg name="init_pos_y" default="0.0"/>
+  <arg name="init_pos_z" default="0.0"/>
+  <arg name="init_roll" default="0"/>
+  <arg name="init_pitch" default="0"/>
+  <arg name="init_yaw" default="0"/>
+
+  <!-- Upload robot description -->
+  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find vrep_holonomic_description)/urdf/base.urdf.xacro"/>
+
+  <!-- State publisher -->
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen">
+    <param name="publish_frequency" type="double" value="100.0" />
+    <param name="/use_sim_time" value="$(arg use_sim_time)"/>
+  </node>
+
+  <!-- Joint state publisher -->
+  <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher" output="screen">
+	<param name="publish_frequency" type="double" value="100.0" />
+	<param name="/use_sim_time" value="$(arg use_sim_time)"/>
+  </node>
+    
+</launch>

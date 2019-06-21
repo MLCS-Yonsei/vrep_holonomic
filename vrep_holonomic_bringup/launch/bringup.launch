@@ -3,8 +3,13 @@
 
   <arg name="robot" default="holonomic"/>
   <arg name="paused" default="false"/>
+  <arg name="auto_quit" default="true"/>
   <arg name="use_sim_time" default="true"/>
   <arg name="gui" default="true"/>
+
+  <arg name="vrep_path" default="/opt/vrep"/>
+  <arg name="vrep_scene_file" default="$(find vrep_holonomic_bringup)/scene/dynamic_obstacles.ttt"/>
+
   <arg name="init_pos_x" default="0.0"/>
   <arg name="init_pos_y" default="0.0"/>
   <arg name="init_pos_z" default="0.0"/>
@@ -12,29 +17,24 @@
   <arg name="init_pitch" default="0"/>
   <arg name="init_yaw" default="0"/>
 
-  <arg name="vrep_path" default="/opt/vrep"/>
-  <arg name="vrep_visuallization" value="true"/>
-  <arg name="vrep_scene_file" default="$(find vrep_holonomic_bringup)/scene/vrep_holonomic.ttt"/>
+ <!-- Launch v-rep -->
+  <include file="$(find vrep_holonomic_bringup)/launch/vrep.launch">
+    <arg name="vrep_path" value="$(arg vrep_path)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="scene_file" value="$(arg vrep_scene_file)"/>
+    <arg name="auto_quit" value="$(arg auto_quit)"/>
+  </include>
 
-  <!-- Upload robot description -->
-  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find vrep_holonomic_description)/urdf/base.urdf.xacro"/>
+  <!-- Robot model -->
+  <include file="$(find vrep_holonomic_bringup)/launch/model.launch">
+	<arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="init_pos_x" value="$(arg init_pos_x)"/>
+    <arg name="init_pos_y" value="$(arg init_pos_y)"/>
+    <arg name="init_pos_z" value="$(arg init_pos_z)"/>
+    <arg name="init_roll"  value="$(arg init_roll)"/>
+    <arg name="init_pitch" value="$(arg init_pitch)"/>
+    <arg name="init_yaw"   value="$(arg init_yaw)"/>
+  </include>
 
-  <node pkg="vrep_holonomic_bringup" type="vrep_holonomic_bringup_simulator.py" name="vrep_holonomic_bringup_simulator"  output="screen">
-    <param name="vrep_path" value="$(arg vrep_path)"/>
-    <param name="visuallization" value="$(arg vrep_visuallization)"/>
-    <param name="scene_file" value="$(arg vrep_scene_file)"/>
-  </node>
-
-  <!-- State publisher -->
-  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen">
-    <param name="publish_frequency" type="double" value="100.0" />
-    <param name="/use_sim_time" value="$(arg use_sim_time)"/>
-  </node>
-
-  <!-- Joint state publisher -->
-  <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher" output="screen">
-    <param name="publish_frequency" type="double" value="100.0" />
-    <param name="/use_sim_time" value="$(arg use_sim_time)"/>
-  </node>
-    
 </launch>
