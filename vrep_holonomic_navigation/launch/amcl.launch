@@ -7,7 +7,7 @@
 
   <!-- AMCL -->
   <node pkg="amcl" type="amcl" name="amcl" output="screen">
-	<rosparam file="$(find vrep_holonomic_slam)/params/amcl_params.yaml" command="load" />
+	<rosparam file="$(find vrep_holonomic_slam)/param/amcl_params.yaml" command="load" />
     <param name="odom_model_type"	value="omni"/>
     <param name="initial_pose_x"    value="0"/>
     <param name="initial_pose_y"    value="0"/>
