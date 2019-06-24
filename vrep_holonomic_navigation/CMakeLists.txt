@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(vrep_holonomic_slam)
+project(vrep_holonomic_navigation)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -19,6 +19,6 @@ include_directories(
 )
 
 ### Install
-install(DIRECTORY launch
+install(DIRECTORY launch params
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )

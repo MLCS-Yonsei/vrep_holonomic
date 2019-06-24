@@ -1,0 +1,80 @@
+TebLocalPlannerROS:
+   
+ # Trajectory
+  
+ teb_autosize: True
+ dt_ref: 0.1                               # Desired temporal resolution of the trajectory (the trajectory is not fixed to dt_ref since the temporal resolution is part of the optimization, but the trajectory will be resized between iterations if dt_ref +-dt_hysteresis is violated.
+ dt_hysteresis: 0.02                       # Hysteresis for automatic resizing depending on the current temporal resolution, usually approx. 10% of dt_ref is recommended.
+ global_plan_overwrite_orientation: True   # Overwrite orientation of local subgoals provided by the global planner. (since they often provide only a 2D path)
+ allow_init_with_backwards_motion: False    # If true, underlying trajectories might be initialized with backwards motions in case the goal is behind the start within the local costmap.
+ max_global_plan_lookahead_dist: 3.0       # Specify the maximum length (cumulative Euclidean distances) of the subset of the global plan taken into account for optimization.
+ feasibility_check_no_poses: 3             # Specify up to which pose on the predicted plan the feasibility should be checked each sampling interval.
+    
+ # Robot
+         
+ #type: 0
+ max_vel_x: 0.5             # Maximum translational velocity of the robot in meters/sec
+ max_vel_x_backwards: 0.5   # Maximum absolute translational velocity of the robot while driving backwards in meters/sec
+ max_vel_y: 0.5             # Maximum strafing velocity of the robot (should be zero for non-holonomic robots!)
+ max_vel_theta: 0.968       # Maximum angular velocity of the robot in radians/sec
+ acc_lim_x: 2.0             # Maximum translational acceleration of the robot in meters/sec^2
+ acc_lim_y: 2.0             # Maximum strafing acceleration of the robot
+ acc_lim_theta: 3.8722      # Maximum angular acceleration of the robot in radians/sec^2
+ min_turning_radius: 0      # omni-drive robot (can turn on place!)
+
+ footprint_model:
+   type: "point"
+
+ # GoalTolerance
+    
+ xy_goal_tolerance: 0.01    # Allowed final euclidean distance to the goal position in meters.
+ yaw_goal_tolerance: 0.02   # Allowed final orientation error in radians.
+ free_goal_vel: False      # Remove the goal velocity constraint such that the robot can arrive at the goal with maximum speed.
+    
+ # Obstacles
+    
+ min_obstacle_dist: 0.5                      # This value must also include our robot radius, since footprint_model is set to "point".
+ include_costmap_obstacles: True
+ costmap_obstacles_behind_robot_dist: 0.45    # Limit the occupied local costmap obstacles taken into account for planning behind the robot (specify distance in meters).
+ obstacle_poses_affected: 20                 # Each obstacle position is attached to the closest pose on the trajectory in order to keep a distance. 
+ costmap_converter_plugin: ""
+ costmap_converter_spin_thread: True         # If set to true, the costmap converter invokes its callback queue in a different thread.
+ costmap_converter_rate: 60                  # Rate that defines how often the costmap_converter plugin processes the current costmap (the value should not be much higher than the costmap update rate) [in Hz].
+
+ # Optimization
+    
+ no_inner_iterations: 5                # Number of actual solver iterations called in each outerloop iteration. See param no_outer_iterations.
+ no_outer_iterations: 4
+ optimization_activate: True
+ optimization_verbose: False
+ penalty_epsilon: 0.1                  # Add a small safety margin to penalty functions for hard-constraint approximations.
+ weight_max_vel_x: 2                   # Optimization weight for satisfying the maximum allowed translational velocity.
+ weight_max_vel_y: 2
+ weight_max_vel_theta: 1               # optimization weight for satisfying the maximum allowed angular velocity.
+ weight_acc_lim_x: 0                   # Optimization weight for satisfying the maximum allowed translational acceleration.
+ weight_acc_lim_y: 0
+ weight_acc_lim_theta: 0               # Optimization weight for satisfying the maximum allowed angular acceleration.
+ weight_kinematics_nh: 0               # WE HAVE A HOLONOMIC ROBOT, JUST ADD A SMALL PENALTY
+ weight_kinematics_forward_drive: 0    # Optimization weight for forcing the robot to choose only forward directions (positive transl. velocities).
+ weight_kinematics_turning_radius: 0   # Optimization weight for enforcing a minimum turning radius (only for carlike robots).
+ weight_optimaltime: 1                 # Optimization weight for contracting the trajectory w.r.t transition/execution time.
+ weight_obstacle: 50                   # Optimization weight for keeping a minimum distance from obstacles.
+
+ # Homotopy Class Planner
+
+ enable_homotopy_class_planning: False
+ enable_multithreading: True
+ simple_exploration: False
+ max_number_classes: 4
+ selection_cost_hysteresis: 1.0
+ selection_obst_cost_scale: 1.0
+ selection_alternative_time_cost: False
+ 
+ roadmap_graph_no_samples: 15
+ roadmap_graph_area_width: 6
+ h_signature_prescaler: 0.5
+ h_signature_threshold: 0.1
+ obstacle_keypoint_offset: 0.1
+ obstacle_heading_threshold: 0.1
+ visualize_hc_graph: False
+ viapoints_all_candidates: True
