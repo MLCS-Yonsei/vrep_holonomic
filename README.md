@@ -30,6 +30,11 @@ git clone https://github.com/ros-perception/slam_gmapping ~/catkin_ws/src/slam_g
 sudo apt-get install ros-kinetic-navigation ros-kinetic-gmapping
 ```
 
+### teb_local_planner
+https://github.com/MLCS-Yonsei/teb_local_planner
+TEB local planner w/ kinematic constraints for Mecanum-wheeled mobile robot
+
+
 <br/>
 
 ## Run
