@@ -16,6 +16,20 @@ http://www.coppeliarobotics.com/downloads.html
 This package uses the python 2.7  version of Casadi
 https://web.casadi.org/get/
 
+### ros-navigation & gmapping
+
+- ROS-melodic
+```bash
+sudo apt install ros-melodic-navigation
+git clone https://github.com/ros-perception/openslam_gmapping ~/catkin_ws/src/openslam_gmapping
+git clone https://github.com/ros-perception/slam_gmapping ~/catkin_ws/src/slam_gmapping
+```
+
+- ROS-kinetic
+```bash
+sudo apt-get install ros-kinetic-navigation ros-kinetic-gmapping
+```
+
 <br/>
 
 ## Run
