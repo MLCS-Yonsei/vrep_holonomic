@@ -38,8 +38,8 @@
 		<param name="lasamplestep" value="0.005"/>
   </node>
 
-<!-- Run RViz node (visualization) -->
-  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find vrep_holonomic_slam)/rviz/slam.rviz">
-  </node>
+  <!-- Run RViz node (visualization) -->
+  <include file="$(find vrep_holonomic_slam)/launch/rviz.launch">
+  </include>
   
 </launch>

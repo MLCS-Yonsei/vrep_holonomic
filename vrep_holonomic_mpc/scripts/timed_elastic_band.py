@@ -214,14 +214,14 @@ class MPC_controller:
 
     def setup_MPC(self):
 
-        self.T = T = 0.1 # Time horizon
+        self.T = 0.1 # Default time horizon
         self.N = N = 10 # number of control intervals
         self.rob_diam = 0.5
 
         X_max = np.array([float('inf'), float('inf'), float('inf')])
         X_min = -X_max
-        U_max = np.array([float('inf'), float('inf'), float('inf')])
-        U_min = -U_max
+        T_max = np.array([self.T + 0.1*self.T])
+        T_min = np.array([self.T - 0.1*self.T])
 
         #setting up symbolic variables for states 
         x = SX.sym('x')
@@ -239,7 +239,7 @@ class MPC_controller:
         rhs = vertcat(vX*cos(theta)-vY*sin(theta),vX*sin(theta)+vY*cos(theta),omega) # system r.h.s
 
         self.f = Function('f',[states,controls],[rhs]) # nonlinear mapping function f(x,u), system equation 
-        U = Parameters('U') # Decision variables (controls), optimal control input as determined by optimizer 
+        T = Parameters('T') # Decision variables (Time difference) 
         P = SX.sym('P',self.n_states + self.n_states) # parameters (which include the initial and the reference/final desired state of the robot)
         
         X = Parameters('X') # State variables
@@ -276,23 +276,27 @@ class MPC_controller:
         # weighing matrices (controls)
         # compute objective symbollically this is what the solver will minimize 
         for k in range(0, N):
-            con = SX.sym('U'+str(k), self.n_controls)
-            U.add_inequality(con, ub=U_max, lb=U_min)
+            dt = SX.sym('T'+str(k), 1)
+            T.add_inequality(dt, ub=T_max, lb=T_min)
+            st_next = SX.sym('X'+str(k+1), self.n_states)
+            X.add_inequality(st_next, ub=X_max, lb=X_min)
+            cos_theta = cos(st[2])
+            sin_theta = sin(st[2])
+            dx = st_next[0] - st[0]
+            dy = st_next[1] - st[1]
+            con = vertcat((cos_theta*dx+sin_theta*dy)/dt, (cos_theta*dy-sin_theta*dx)/dt, (st_next[2]-st[2])/dt)
             g.add_inequality(mtimes(H, con),
                 ub = np.ones([4])*wheel_rad*w_max,
                 lb =-np.ones([4])*wheel_rad*w_max
             )
-            obj = obj + mtimes((st-P[3:6]).T,mtimes(Q,(st-P[3:6])))+ mtimes(con.T,mtimes(R,con)) # calculate obj
-            st_next = SX.sym('X'+str(k+1), self.n_states)
-            X.add_inequality(st_next, ub=X_max, lb=X_min)
-            f_value = self.f(st, con);
-            st_next_euler = st + (T*f_value);
-            g.add_equality(st_next - st_next_euler) #compute constraints
+            obj = obj + dt
+            if k == N-1:
+                obj = obj + 2*mtimes((st-P[3:6]).T,mtimes(Q,(st-P[3:6]))) # calculate obj
             st = st_next
             
         # make the decision variables one column vector, these alternate between
         # states 
-        OPT_variables = X + U
+        OPT_variables = X + T
 
         opts = {
             'ipopt.max_iter': 2000,
@@ -306,7 +310,7 @@ class MPC_controller:
         self.solver = nlpsol('solver', 'ipopt', nlp_prob, opts)
 
         self.args = {'lbg':g.lb,'ubg':g.ub,'lbx':OPT_variables.lb,'ubx':OPT_variables.ub}#, 'p':P, 'x0':P[0:3]}
-        self.u0 = np.zeros((N, self.n_controls))
+        self.t0 = 0.1*np.ones((N, 1))
 
 
     def iterate_MPC(self, N):
@@ -323,7 +327,7 @@ class MPC_controller:
         self.args['p'] = vertcat(x0, xs) # set the values of the parameters vector
         self.args['x0'] = vertcat(
             reshape(X0.T, 3*(N+1), 1),
-            reshape(self.u0.T, 3*N, 1)
+            reshape(self.t0.T, N, 1)
         ) # initial value of the optimization variables, w0 is the optimization variable
         sol = self.solver(
             x0  = self.args['x0'],
@@ -334,9 +338,16 @@ class MPC_controller:
             p   = self.args['p']
         )
      
-        u = reshape((sol['x'][3*(N+1):]).T, self.n_controls, N).T
+        st = sol['x'][0:3]
+        st_next = sol['x'][3:6]
+        dt = sol['x'][3*(N+1)]
+        cos_theta = np.cos(st[2])
+        sin_theta = np.sin(st[2])
+        dx = st_next[0] - st[0]
+        dy = st_next[1] - st[1]
+        u = [(cos_theta*dx+sin_theta*dy)/dt, (cos_theta*dy-sin_theta*dx)/dt, (st_next[2]-st[2])/dt]
 
-        return u[0, 0:]
+        return u
 
 
 

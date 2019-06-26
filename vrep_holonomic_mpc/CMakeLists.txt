@@ -24,6 +24,10 @@ catkin_install_python(PROGRAMS
   scripts/vrep_holonomic_mpc_ss.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+catkin_install_python(PROGRAMS
+  scripts/timed_elastic_band.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 install(DIRECTORY launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}

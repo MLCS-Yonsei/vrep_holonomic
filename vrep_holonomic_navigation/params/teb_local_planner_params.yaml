@@ -3,10 +3,10 @@ TebLocalPlannerROS:
      # Trajectory
       
      teb_autosize: True
-     dt_ref: 0.1                               # Desired temporal resolution of the trajectory (the trajectory is not fixed to dt_ref since the temporal resolution is part of the optimization, but the trajectory will be resized between iterations if dt_ref +-dt_hysteresis is violated.
-     dt_hysteresis: 0.02                       # Hysteresis for automatic resizing depending on the current temporal resolution, usually approx. 10% of dt_ref is recommended.
+     dt_ref: 0.3                               # Desired temporal resolution of the trajectory (the trajectory is not fixed to dt_ref since the temporal resolution is part of the optimization, but the trajectory will be resized between iterations if dt_ref +-dt_hysteresis is violated.
+     dt_hysteresis: 0.1                        # Hysteresis for automatic resizing depending on the current temporal resolution, usually approx. 10% of dt_ref is recommended.
      global_plan_overwrite_orientation: True   # Overwrite orientation of local subgoals provided by the global planner. (since they often provide only a 2D path)
-     allow_init_with_backwards_motion: False    # If true, underlying trajectories might be initialized with backwards motions in case the goal is behind the start within the local costmap.
+     allow_init_with_backwards_motion: True    # If true, underlying trajectories might be initialized with backwards motions in case the goal is behind the start within the local costmap.
      max_global_plan_lookahead_dist: 3.0       # Specify the maximum length (cumulative Euclidean distances) of the subset of the global plan taken into account for optimization.
      feasibility_check_no_poses: 3             # Specify up to which pose on the predicted plan the feasibility should be checked each sampling interval.
         
@@ -57,7 +57,7 @@ TebLocalPlannerROS:
      weight_kinematics_nh: 0               # WE HAVE A HOLONOMIC ROBOT, JUST ADD A SMALL PENALTY
      weight_kinematics_forward_drive: 0    # Optimization weight for forcing the robot to choose only forward directions (positive transl. velocities).
      weight_kinematics_turning_radius: 0   # Optimization weight for enforcing a minimum turning radius (only for carlike robots).
-     weight_optimaltime: 1                 # Optimization weight for contracting the trajectory w.r.t transition/execution time.
+     weight_optimaltime: 2                 # Optimization weight for contracting the trajectory w.r.t transition/execution time.
      weight_obstacle: 50                   # Optimization weight for keeping a minimum distance from obstacles.
 
      # Homotopy Class Planner

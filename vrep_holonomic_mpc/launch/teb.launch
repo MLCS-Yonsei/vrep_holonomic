@@ -1,0 +1,11 @@
+<launch>
+
+  <arg name="casadi_path" default="/home/lim/Downloads/casadi-linux-py27-v3.4.5-64bit"/>
+  <arg name="use_odom" value="true"/>
+
+  <node pkg="vrep_holonomic_mpc" type="timed_elastic_band.py" name="vrep_holonomic_mpc"  output="screen">
+    <param name="casadi_path" value="$(arg casadi_path)"/>
+    <param name="use_odom" value="$(arg use_odom)"/>
+  </node>
+
+</launch>
