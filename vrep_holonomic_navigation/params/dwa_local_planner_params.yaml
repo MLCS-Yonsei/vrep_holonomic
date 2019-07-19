@@ -17,3 +17,7 @@ DWAPlannerROS:
 
     yaw_goal tolerance: 0.05
     xy_goal_tolerance: 0.1
+
+    vx_samples: 7
+    vy_samples: 7
+    vth_samples: 7

@@ -8,7 +8,7 @@
   <arg name="gui" default="true"/>
 
   <arg name="vrep_path" default="/opt/vrep"/>
-  <arg name="vrep_scene_file" default="$(find vrep_holonomic_bringup)/scene/dynamic_obstacles.ttt"/>
+  <arg name="vrep_scene_file" default="$(find vrep_holonomic_bringup)/scenes/dynamic_obstacles.ttt"/>
 
   <arg name="init_pos_x" default="0.0"/>
   <arg name="init_pos_y" default="0.0"/>

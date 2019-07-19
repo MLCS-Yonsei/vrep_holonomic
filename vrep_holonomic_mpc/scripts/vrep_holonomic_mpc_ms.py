@@ -6,17 +6,17 @@ from std_msgs.msg import Float32
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import TransformStamped
 from geometry_msgs.msg import PoseStamped
-from nav_msgs.msg import Odometry
+from nav_msgs.msg import Odometry, Path
 import math
 import time
 from std_srvs.srv import Empty
 import numpy as np
 from tf import TransformListener
-from tf.transformations import euler_from_quaternion
-from sys import path
+from tf.transformations import euler_from_quaternion, quaternion_from_euler
+from sys import path as pythonpath
 try:
     casadi_path = rospy.get_param("/vrep_holonomic_mpc/casadi_path")
-    path.append(casadi_path)
+    pythonpath.append(casadi_path)
 except:
     pass
 from casadi import *
@@ -97,6 +97,8 @@ class MPC_controller:
 
         rospy.init_node('vrep_holonomic_mpc', anonymous=True)
         time.sleep(1)
+        self.tic = None
+        self.toc = None
 
         self.use_odom = rospy.get_param("/vrep_holonomic_mpc/use_odom")
         self.target_sub = rospy.Subscriber("/move_base_simple/goal", PoseStamped, self.targetCallback)
@@ -107,9 +109,8 @@ class MPC_controller:
         #declare velocity publisher
         self.vel_msg = Twist()
         self.vel_pub = rospy.Publisher(cmd_vel_topic, Twist, queue_size=10)
+        self.path_pub = rospy.Publisher("/move_base/TebLocalPlannerROS/local_plan", Path, queue_size=10)
         self.setup_MPC()
-        self.tic = None
-        self.toc = None
 
 
     def spin(self, rate):
@@ -172,7 +173,10 @@ class MPC_controller:
         (roll, pitch, yaw) = euler_from_quaternion(quat)
         self.gyaw = yaw
 
-        print 'Target pose :', self.gx, self.gy, self.gyaw, '\n'
+        if type(self.tic)!=type(None):
+            print 'Recieved a new target pose. previous target pose will be ignored.\n'
+        self.tic = rospy.get_time()
+        print 'Target pose :', self.gx, self.gy, self.gyaw
 
 
     def publish_vel(self):
@@ -185,12 +189,10 @@ class MPC_controller:
             vel = [0.0, 0.0, 0.0]
             if type(self.tic)!=type(None):
                 self.toc = rospy.get_time()
-                print 'Time elapsed:', self.tic - self.toc
+                print 'Time elapsed:', self.toc - self.tic, '\n'
                 self.tic = None
         else:
             vel = self.iterate_MPC(self.N)
-            if type(self.tic)==type(None):
-                self.tic = rospy.get_time()
 
         self.vel_msg.linear.x  = vel[0]
         self.vel_msg.linear.y  = vel[1]
@@ -214,8 +216,8 @@ class MPC_controller:
 
     def setup_MPC(self):
 
-        self.T = T = 0.1 # Time horizon
-        self.N = N = 10 # number of control intervals
+        self.T = T = 0.2 # Time horizon
+        self.N = N = 20 # number of control intervals
         self.rob_diam = 0.5
 
         X_max = np.array([float('inf'), float('inf'), float('inf')])
@@ -295,7 +297,7 @@ class MPC_controller:
         OPT_variables = X + U
 
         opts = {
-            'ipopt.max_iter': 2000,
+            'ipopt.max_iter': 100,
             'ipopt.print_level': 0,
             'print_time': 0,
             'ipopt.acceptable_tol': 1e-8,
@@ -335,6 +337,19 @@ class MPC_controller:
         )
      
         u = reshape((sol['x'][3*(N+1):]).T, self.n_controls, N).T
+        path_msg = Path()
+        path_msg.header.frame_id = "map"
+        path_msg.header.stamp = rospy.Time.now()
+        for point in np.reshape(sol['x'][:3*(N+1)],[-1,3]):
+            temp = PoseStamped()
+            temp.header = path_msg.header
+            temp.pose.position.x = point[0]
+            temp.pose.position.y = point[1]
+            quat = quaternion_from_euler(0.0, 0.0, point[2])
+            temp.pose.orientation.z = quat[2]
+            temp.pose.orientation.w = quat[3]
+            path_msg.poses.append(temp)
+        self.path_pub.publish(path_msg)
 
         return u[0, 0:]
 

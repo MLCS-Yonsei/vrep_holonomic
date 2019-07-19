@@ -6,17 +6,17 @@ from std_msgs.msg import Float32
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import TransformStamped
 from geometry_msgs.msg import PoseStamped
-from nav_msgs.msg import Odometry
+from nav_msgs.msg import Odometry, Path
 import math
 import time
 from std_srvs.srv import Empty
 import numpy as np
 from tf import TransformListener
-from tf.transformations import euler_from_quaternion
-from sys import path
+from tf.transformations import euler_from_quaternion, quaternion_from_euler
+from sys import path as pythonpath
 try:
     casadi_path = rospy.get_param("/vrep_holonomic_mpc/casadi_path")
-    path.append(casadi_path)
+    pythonpath.append(casadi_path)
 except:
     pass
 from casadi import *
@@ -97,6 +97,9 @@ class MPC_controller:
 
         rospy.init_node('vrep_holonomic_mpc', anonymous=True)
         time.sleep(1)
+        self.tic = None
+        self.toc = None
+        self.prev_path = None
 
         self.use_odom = rospy.get_param("/vrep_holonomic_mpc/use_odom")
         self.target_sub = rospy.Subscriber("/move_base_simple/goal", PoseStamped, self.targetCallback)
@@ -107,9 +110,8 @@ class MPC_controller:
         #declare velocity publisher
         self.vel_msg = Twist()
         self.vel_pub = rospy.Publisher(cmd_vel_topic, Twist, queue_size=10)
+        self.path_pub = rospy.Publisher("/move_base/TebLocalPlannerROS/local_plan", Path, queue_size=10)
         self.setup_MPC()
-        self.tic = None
-        self.toc = None
 
 
     def spin(self, rate):
@@ -172,7 +174,10 @@ class MPC_controller:
         (roll, pitch, yaw) = euler_from_quaternion(quat)
         self.gyaw = yaw
 
-        print 'Target pose :', self.gx, self.gy, self.gyaw, '\n'
+        if type(self.tic)!=type(None):
+            print 'Recieved a new target pose. previous target pose will be ignored.\n'
+        self.tic = rospy.get_time()
+        print 'Target pose :', self.gx, self.gy, self.gyaw
 
 
     def publish_vel(self):
@@ -185,12 +190,11 @@ class MPC_controller:
             vel = [0.0, 0.0, 0.0]
             if type(self.tic)!=type(None):
                 self.toc = rospy.get_time()
-                print 'Time elapsed:', self.tic - self.toc
+                print 'Time elapsed:', self.toc - self.tic, 'sec.\n'
                 self.tic = None
+            self.prev_path = None
         else:
             vel = self.iterate_MPC(self.N)
-            if type(self.tic)==type(None):
-                self.tic = rospy.get_time()
 
         self.vel_msg.linear.x  = vel[0]
         self.vel_msg.linear.y  = vel[1]
@@ -214,14 +218,14 @@ class MPC_controller:
 
     def setup_MPC(self):
 
-        self.T = 0.1 # Default time horizon
-        self.N = N = 10 # number of control intervals
+        self.T = 0.2 # Default time horizon
+        self.N = N = 20 # number of control intervals
         self.rob_diam = 0.5
 
         X_max = np.array([float('inf'), float('inf'), float('inf')])
         X_min = -X_max
-        T_max = np.array([self.T + 0.1*self.T])
-        T_min = np.array([self.T - 0.1*self.T])
+        T_max = np.array([self.T + 0.2*self.T])
+        T_min = np.array([self.T - 0.2*self.T])
 
         #setting up symbolic variables for states 
         x = SX.sym('x')
@@ -240,7 +244,7 @@ class MPC_controller:
 
         self.f = Function('f',[states,controls],[rhs]) # nonlinear mapping function f(x,u), system equation 
         T = Parameters('T') # Decision variables (Time difference) 
-        P = SX.sym('P',self.n_states + self.n_states) # parameters (which include the initial and the reference/final desired state of the robot)
+        P = SX.sym('P',self.n_states + self.n_states + self.N) # parameters (which include the initial and the reference/final desired state of the robot)
         
         X = Parameters('X') # State variables
 
@@ -289,9 +293,7 @@ class MPC_controller:
                 ub = np.ones([4])*wheel_rad*w_max,
                 lb =-np.ones([4])*wheel_rad*w_max
             )
-            obj = obj + dt
-            if k == N-1:
-                obj = obj + 2*mtimes((st-P[3:6]).T,mtimes(Q,(st-P[3:6]))) # calculate obj
+            obj = obj + dt + P[6+k]*(mtimes((st-P[3:6]).T,mtimes(Q,(st-P[3:6]))) + 0.5*mtimes(mtimes(H, con).T, mtimes(H, con))) # calculate obj
             st = st_next
             
         # make the decision variables one column vector, these alternate between
@@ -299,7 +301,7 @@ class MPC_controller:
         OPT_variables = X + T
 
         opts = {
-            'ipopt.max_iter': 2000,
+            'ipopt.max_iter': 200,
             'ipopt.print_level': 0,
             'print_time': 0,
             'ipopt.acceptable_tol': 1e-8,
@@ -322,9 +324,16 @@ class MPC_controller:
         xs = np.array([[self.gx], [self.gy], [self.gyaw]]); # Reference posture.
         #xs = np.array([[0], [0], [0]])
 
+        via_points = np.zeros([N, 1])
+        via_points[-1, 0] = 1.0
+        if type(self.prev_path)!=type(None):
+            for k in range(1, N):
+                if (self.prev_path[N-k, 0]-self.gx)**2 + (self.prev_path[N-k, 1]-self.gy)**2 + (self.prev_path[N-k, 2]-self.gyaw)**2 < 0.01:
+                    via_points[N-k-1, 0] = 1.0
+
         X0 = repmat(x0, 1, N+1)
 
-        self.args['p'] = vertcat(x0, xs) # set the values of the parameters vector
+        self.args['p'] = vertcat(x0, xs, via_points) # set the values of the parameters vector
         self.args['x0'] = vertcat(
             reshape(X0.T, 3*(N+1), 1),
             reshape(self.t0.T, N, 1)
@@ -346,6 +355,20 @@ class MPC_controller:
         dx = st_next[0] - st[0]
         dy = st_next[1] - st[1]
         u = [(cos_theta*dx+sin_theta*dy)/dt, (cos_theta*dy-sin_theta*dx)/dt, (st_next[2]-st[2])/dt]
+        path_msg = Path()
+        path_msg.header.frame_id = "map"
+        path_msg.header.stamp = rospy.Time.now()
+        for point in np.reshape(sol['x'][:3*(N+1)],[-1,3]):
+            temp = PoseStamped()
+            temp.header = path_msg.header
+            temp.pose.position.x = point[0]
+            temp.pose.position.y = point[1]
+            quat = quaternion_from_euler(0.0, 0.0, point[2])
+            temp.pose.orientation.z = quat[2]
+            temp.pose.orientation.w = quat[3]
+            path_msg.poses.append(temp)
+        self.path_pub.publish(path_msg)
+        self.prev_path = np.reshape(sol['x'][3:3*(N+1)], [N, 3])
 
         return u
 
