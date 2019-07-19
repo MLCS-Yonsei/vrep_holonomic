@@ -71,20 +71,11 @@ roslaunch vrep_holonomic_mpc mpc_ss.launch casadi_path:=/path/to/casadi
 ## Test environments (TTAK.KO-10.0809)
 
 ### V-rep
-- Environment 1
-```bash
-roslaunch vrep_holonomic_bringup bringup.launch vrep_path:=/path/to/vrep vrep_scene_file:=~/catkin_ws/src/vrep/holonomic/vrep_holonomic_bringup/scenes/test_1.ttt
-```
-- Environment 2
-```bash
-roslaunch vrep_holonomic_bringup bringup.launch vrep_path:=/path/to/vrep vrep_scene_file:=~/catkin_ws/src/vrep/holonomic/vrep_holonomic_bringup/scenes/test_2.ttt
-```
-- Environment 3
-```bash
-roslaunch vrep_holonomic_bringup bringup.launch vrep_path:=/path/to/vrep vrep_scene_file:=~/catkin_ws/src/vrep/holonomic/vrep_holonomic_bringup/scenes/test_3.ttt
-```
+launch bringup with ```vrep_scene_file``` argument
+- Environment 1 scene file: ```vrep_holonomic_bringup/scenes/test_1.ttt```
+- Environment 2 scene file: ```vrep_holonomic_bringup/scenes/test_2.ttt```
+- Environment 3 scene file: ```vrep_holonomic_bringup/scenes/test_3.ttt```
 
 ### AMCL
-```bash
-roslaunch vrep_holonomic_slam amcl.launch map_file:=~/catkin_ws/src/vrep/holonomic/vrep_holonomic_slam/maps/test.yaml
-```
+launch amcl with ```map_file``` argument
+- Map file: ```vrep_holonomic_slam/maps/test.yaml```
