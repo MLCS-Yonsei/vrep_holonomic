@@ -71,11 +71,11 @@ roslaunch vrep_holonomic_mpc mpc_ss.launch casadi_path:=/path/to/casadi
 ## Test environments (TTAK.KO-10.0809)
 
 ### V-rep
-launch bringup with ```vrep_scene_file``` argument
+launch bringup with ```vrep_scene_file:=``` argument
 - Environment 1 scene file: ```vrep_holonomic_bringup/scenes/test_1.ttt```
 - Environment 2 scene file: ```vrep_holonomic_bringup/scenes/test_2.ttt```
 - Environment 3 scene file: ```vrep_holonomic_bringup/scenes/test_3.ttt```
 
 ### AMCL
-launch amcl with ```map_file``` argument
+launch amcl with ```map_file:=``` argument
 - Map file: ```vrep_holonomic_slam/maps/test.yaml```
