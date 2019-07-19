@@ -64,3 +64,27 @@ single shooting:
 ```bash
 roslaunch vrep_holonomic_mpc mpc_ss.launch casadi_path:=/path/to/casadi
 ```
+
+
+<br/>
+
+## Test environments (TTAK.KO-10.0809)
+
+### V-rep
+- Environment 1
+```bash
+roslaunch vrep_holonomic_bringup bringup.launch vrep_path:=/path/to/vrep vrep_scene_file:=~/catkin_ws/src/vrep/holonomic/vrep_holonomic_bringup/scenes/test_1.ttt
+```
+- Environment 2
+```bash
+roslaunch vrep_holonomic_bringup bringup.launch vrep_path:=/path/to/vrep vrep_scene_file:=~/catkin_ws/src/vrep/holonomic/vrep_holonomic_bringup/scenes/test_2.ttt
+```
+- Environment 3
+```bash
+roslaunch vrep_holonomic_bringup bringup.launch vrep_path:=/path/to/vrep vrep_scene_file:=~/catkin_ws/src/vrep/holonomic/vrep_holonomic_bringup/scenes/test_3.ttt
+```
+
+### AMCL
+```bash
+roslaunch vrep_holonomic_slam amcl.launch map_file:=~/catkin_ws/src/vrep/holonomic/vrep_holonomic_slam/maps/test.yaml
+```
