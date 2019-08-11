@@ -10,9 +10,11 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <build_depend>roscpp</build_depend>
+  <build_depend>rospy</build_depend>
   <build_depend>sensor_msgs</build_depend>
 
   <run_depend>roscpp</run_depend>
+  <run_depend>rospy</run_depend>
   <run_depend>sensor_msgs</run_depend>
   <run_depend>move_base</run_depend>
   <run_depend>move_base_msgs</run_depend>
@@ -20,6 +22,7 @@
   <run_depend>topic_tools</run_depend>
   <run_depend>vrep_holonomic_bringup</run_depend>
   <run_depend>vrep_holonomic_description</run_depend>
+  <run_depend>laser_geometry</run_depend>
   
   <test_depend>roslaunch</test_depend>
 

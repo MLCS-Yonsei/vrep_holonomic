@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <launch>
 
+  <!-- Laserscan to Pointcloud -->
+  <!-- <node pkg="vrep_holonomic_navigation" type="laserscan_to_pointcloud.py" name="laserscan_to_pointcloud" /> -->
+
   <!-- Move_base-->
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
     <rosparam file="$(find vrep_holonomic_navigation)/params/costmap_common_params.yaml"    command="load" ns="global_costmap" />
@@ -8,6 +11,7 @@
     <rosparam file="$(find vrep_holonomic_navigation)/params/local_costmap_params.yaml"     command="load" />
     <rosparam file="$(find vrep_holonomic_navigation)/params/global_costmap_params.yaml"    command="load" />
     <rosparam file="$(find vrep_holonomic_navigation)/params/teb_local_planner_params.yaml" command="load" />
+    <!-- <rosparam file="$(find vrep_holonomic_navigation)/params/costmap_converter_params.yaml" command="load" /> -->
 	  
     <param name="base_global_planner" value="global_planner/GlobalPlanner" />
     <param name="planner_frequency"   value="20.0" />
