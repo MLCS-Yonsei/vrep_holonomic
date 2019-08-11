@@ -42,10 +42,10 @@ TebLocalPlannerROS:
 
   # Obstacles
 
-  min_obstacle_dist: 0.2                    # This value must also include our robot radius, since footprint_model is set to "point".
+  min_obstacle_dist: 0.1                    # This value must also include our robot radius, since footprint_model is set to "point".
   include_costmap_obstacles: true
   include_dynamic_obstacles: false
-  costmap_obstacles_behind_robot_dist: 2.0  # Limit the occupied local costmap obstacles taken into account for planning behind the robot (specify distance in meters).
+  costmap_obstacles_behind_robot_dist: 5.0  # Limit the occupied local costmap obstacles taken into account for planning behind the robot (specify distance in meters).
   obstacle_poses_affected: 30               # Each obstacle position is attached to the closest pose on the trajectory in order to keep a distance. 
   inflation_dist: 0.5                       # Buffer zone around obstacles with non-zero penalty costs
   legacy_obstacle_association: false        # The strategy of connecting trajectory poses with obstacles for optimization has been modified. You can switch to the old/previous strategy by setting this parameter to true. Old strategy: for each obstacle, find the nearest TEB pose; new strategy: for each teb pose, find only "relevant" obstacles.
@@ -53,7 +53,7 @@ TebLocalPlannerROS:
   obstacle_association_cutoff_factor: 5
   costmap_converter_plugin: ""
   costmap_converter_spin_thread: true       # If set to true, the costmap converter invokes its callback queue in a different thread.
-  costmap_converter_rate: 20                # Rate that defines how often the costmap_converter plugin processes the current costmap (the value should not be much higher than the costmap update rate) [in Hz].
+  costmap_converter_rate: 10                # Rate that defines how often the costmap_converter plugin processes the current costmap (the value should not be much higher than the costmap update rate) [in Hz].
 
   # Optimization
 
