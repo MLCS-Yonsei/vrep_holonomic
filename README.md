@@ -29,6 +29,24 @@ git clone https://github.com/ros-perception/slam_gmapping ~/catkin_ws/src/slam_g
 ```bash
 sudo apt-get install ros-kinetic-navigation ros-kinetic-gmapping
 ```
+### robot_localization
+
+```bash
+sudo apt-get install ros-${ROS_DISTRO}-robot-localization
+```
+
+### cartographer_ros
+
+- apt
+
+```bash
+sudo apt-get install ros-${ROS_DISTRO}-cartographer-ros
+```
+
+- build from source
+
+https://google-cartographer-ros.readthedocs.io/en/latest/compilation.html
+
 
 ### teb_local_planner
 https://github.com/MLCS-Yonsei/teb_local_planner
@@ -45,9 +63,14 @@ TEB local planner w/ kinematic constraints for Mecanum-wheeled mobile robot
 roslaunch vrep_holonomic_bringup bringup.launch vrep_path:=/path/to/vrep
 ```
 
-### SLAM (gmapping)
+### SLAM
+- gmapping
 ```bash
 roslaunch vrep_holonomic_slam gmapping.launch
+```
+- cartographer
+```bash
+roslaunch vrep_holonomic_slam cartographer.launch
 ```
 
 ### Localization only (AMCL)
