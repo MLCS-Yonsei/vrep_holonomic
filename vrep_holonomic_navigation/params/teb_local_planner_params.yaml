@@ -28,11 +28,12 @@ TebLocalPlannerROS:
   min_turning_radius: 0                     # omni-drive robot (can turn on place!)
 
   footprint_model:
-    type: "two_circles"
-    front_offset: 0.1
-    front_radius: 0.43
-    rear_offset: 0.1
-    rear_radius: 0.43
+    type: "point"
+    #type: "two_circles"
+    #front_offset: 0.1
+    #front_radius: 0.43
+    #rear_offset: 0.1
+    #rear_radius: 0.43
 
   # GoalTolerance
 
@@ -42,7 +43,7 @@ TebLocalPlannerROS:
 
   # Obstacles
 
-  min_obstacle_dist: 0.1                    # This value must also include our robot radius, since footprint_model is set to "point".
+  min_obstacle_dist: 0.6                    # This value must also include our robot radius, since footprint_model is set to "point".
   include_costmap_obstacles: true
   include_dynamic_obstacles: false
   costmap_obstacles_behind_robot_dist: 5.0  # Limit the occupied local costmap obstacles taken into account for planning behind the robot (specify distance in meters).

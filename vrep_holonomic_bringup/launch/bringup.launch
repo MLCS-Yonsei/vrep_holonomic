@@ -8,6 +8,7 @@
   <arg name="gui" default="true"/>
 
   <arg name="vrep_path" default="/opt/vrep"/>
+  <!--<arg name="vrep_scene_file" default="$(find vrep_holonomic_bringup)/scenes/test_1.ttt"/>-->
   <arg name="vrep_scene_file" default="$(find vrep_holonomic_bringup)/scenes/dynamic_obstacles.ttt"/>
 
   <arg name="init_pos_x" default="0.0"/>
@@ -36,5 +37,5 @@
     <arg name="init_pitch" value="$(arg init_pitch)"/>
     <arg name="init_yaw"   value="$(arg init_yaw)"/>
   </include>
-
+  
 </launch>

@@ -13,7 +13,7 @@
     <param name="planner_frequency"   value="20.0" />
     <param name="planner_patience"    value="15.0" />
 
-    <param name="base_local_planner"   value="dwa_local_planner/DWAPlannerROS" />
+    <param name="base_local_planner"   value="dedwa_local_planner/DEDWAPlannerROS" />
   </node>>
   
 </launch>
