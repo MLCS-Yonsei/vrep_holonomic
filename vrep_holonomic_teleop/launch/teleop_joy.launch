@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+  <node pkg="vrep_holonomic_teleop" type="vrep_holonomic_teleop_joy" name="vrep_holonomic_teleop_joypad" output="screen">
+    <param name="scale_angular"   value="1.5488"/>
+    <param name="scale_linear_x"  value="0.8"/>
+    <param name="scale_linear_y"  value="0.8"/>
+    <param name="deadzone_scale"  value="0.1"/>
+    <param name="axis_deadman"    value="4"/>
+    <param name="axis_linear_x"   value="1"/>
+    <param name="axis_linear_y"   value="0"/>
+    <param name="axis_angular"    value="3"/>
+    <remap from="/vrep_holonomic_teleop_joypad/cmd_vel" to="cmd_vel"/>
+  </node>
+
+  <node pkg="joy" type="joy_node" name="joystick"/>
+
+</launch>
