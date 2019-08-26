@@ -37,14 +37,12 @@ sudo apt-get install ros-${ROS_DISTRO}-robot-localization
 
 ### cartographer_ros
 
-- apt
-
+#### apt
 ```bash
 sudo apt-get install ros-${ROS_DISTRO}-cartographer-ros
 ```
 
-- build from source
-
+#### build from source
 https://google-cartographer-ros.readthedocs.io/en/latest/compilation.html
 
 
@@ -64,26 +62,31 @@ roslaunch vrep_holonomic_bringup bringup.launch vrep_path:=/path/to/vrep
 ```
 
 ### SLAM
-- gmapping
+#### gmapping
 ```bash
 roslaunch vrep_holonomic_slam gmapping.launch
 ```
-- cartographer
+#### cartographer
 ```bash
-roslaunch vrep_holonomic_slam cartographer.launch
+roslaunch vrep_holonomic_slam cartographer_slam.launch
 ```
 
-### Localization only (AMCL)
+### Localization only
+#### amcl
 ```bash
 roslaunch vrep_holonomic_slam amcl.launch
 ```
+#### cartographer
+```bash
+roslaunch vrep_holonomic_slam cartographer_navigation.launch
+```
 
 ### MPC
-multiple shooting:
+#### multiple shooting:
 ```bash
 roslaunch vrep_holonomic_mpc mpc_ms.launch casadi_path:=/path/to/casadi
 ```
-single shooting:
+#### single shooting:
 ```bash
 roslaunch vrep_holonomic_mpc mpc_ss.launch casadi_path:=/path/to/casadi
 ```
