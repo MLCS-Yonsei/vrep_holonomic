@@ -5,17 +5,17 @@ base_frame_id: "base_footprint"
 global_frame_id: "map"
 
 ## Publish scans from best pose at a max of 10 Hz
-odom_model_type: "omni"
+odom_model_type: "omni-corrected"
 
 gui_publish_rate: 10.0
 
-min_particles: 100
-max_particles: 2000
+min_particles: 500
+max_particles: 3000
 kld_err: 0.01
 kld_z: 0.99
 update_min_d: 0.3
 update_min_a: 0.5
-resample_interval: 2
+resample_interval: 3
 transform_tolerance: 0.1
 recovery_alpha_slow: 0.001
 recovery_alpha_fast: 0.1
@@ -27,7 +27,7 @@ odom_alpha4: 0.2
 odom_alpha5: 0.2
 
 laser_max_range: 10.0
-laser_max_beams: 60
+laser_max_beams: 360
 laser_z_hit: 0.95
 laser_z_short: 0.1
 laser_z_max: 0.05
