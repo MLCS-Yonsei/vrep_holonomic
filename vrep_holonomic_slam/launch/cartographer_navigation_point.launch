@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- Arguments -->
+  <arg name="configuration_basename" default="cartographer_navigation_point.lua" />
+  <arg name="pbstream_file" default="map_final_03.pbstream" />
+
+  <!-- cartographer_node -->
+  <node pkg="cartographer_ros" type="cartographer_node" name="cartographer_node" 
+        args="-configuration_directory $(find vrep_holonomic_slam)/params
+              -configuration_basename $(arg configuration_basename)
+	            -load_state_filename $(find vrep_holonomic_slam)/maps/$(arg pbstream_file)"
+        output="screen" >
+    <remap from="points2_1" to="/front_velodyne/velodyne_points" /> 
+    <remap from="points2_2" to="/rear_velodyne/velodyne_points" />
+    <param name="use_sim_time" value="true" />
+  </node> 
+
+  <!-- cartographer_pbstream_map_publisher_node -->
+  <node pkg="cartographer_ros" type="cartographer_pbstream_map_publisher"
+        name="cartographer_pbstream_map_publisher"
+        args="-pbstream_filename $(find vrep_holonomic_slam)/maps/$(arg pbstream_file)" />     
+</launch>

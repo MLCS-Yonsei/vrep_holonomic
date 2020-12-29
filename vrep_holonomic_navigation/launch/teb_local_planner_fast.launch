@@ -10,7 +10,7 @@
     <rosparam file="$(find vrep_holonomic_navigation)/params/costmap_common_params.yaml"    command="load" ns="local_costmap" />
     <rosparam file="$(find vrep_holonomic_navigation)/params/local_costmap_params.yaml"     command="load" />
     <rosparam file="$(find vrep_holonomic_navigation)/params/global_costmap_params.yaml"    command="load" />
-    <rosparam file="$(find vrep_holonomic_navigation)/params/teb_local_planner_params.yaml" command="load" />
+    <rosparam file="$(find vrep_holonomic_navigation)/params/teb_local_planner_fast_params.yaml" command="load" />
     <rosparam file="$(find vrep_holonomic_navigation)/params/costmap_converter_params.yaml" command="load" />
 	  
     <param name="base_global_planner" value="global_planner/GlobalPlanner" />

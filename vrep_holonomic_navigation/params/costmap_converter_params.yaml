@@ -23,4 +23,10 @@ TebLocalPlannerROS:
     dist_thresh: 60.0
     max_allowed_skipped_frames: 3
     max_trace_length: 10
-    static_converter_plugin: "costmap_converter::CostmapToPolygonsDBSMCCH"
+    #static_converter_plugin: "costmap_converter::CostmapToPolygonsDBSMCCH"
+    static_converter_plugin: "costmap_converter::CostmapToLinesDBSMCCH"
+    #costmap_converter/CostmapToPolygonDBSMCCH:
+    cluster_max_distance: 0.1
+    cluster_min_pts: 3
+    cluster_max_pts: 360
+    convex_hull_min_pt_separation: 0.1

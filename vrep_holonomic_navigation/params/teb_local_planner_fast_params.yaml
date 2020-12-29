@@ -18,24 +18,29 @@ TebLocalPlannerROS:
 
   # Robot
 
-  max_vel_x: 0.5                            # Maximum translational velocity of the robot in meters/sec
-  max_vel_x_backwards: 0.5                  # Maximum absolute translational velocity of the robot while driving backwards in meters/sec
-  max_vel_y: 0.5                            # Maximum strafing velocity of the robot (should be zero for non-holonomic robots!)
-  max_vel_theta: 0.9681                      # Maximum angular velocity of the robot in radians/sec 1.5488
-  acc_lim_x: 1.0                            # Maximum translational acceleration of the robot in meters/sec^2
-  acc_lim_y: 1.0                            # Maximum strafing acceleration of the robot
-  acc_lim_theta: 1.9361                     # Maximum angular acceleration of the robot in radians/sec^2 1.936
+  max_vel_x: 0.25 #0.1                          # Maximum translational velocity of the robot in meters/sec
+  max_vel_x_backwards: 0.25                  # Maximum absolute translational velocity of the robot while driving backwards in meters/sec
+  max_vel_y: 0.25 #0.1                           # Maximum strafing velocity of the robot (should be zero for non-holonomic robots!)
+  #max_vel_theta: 0.5808                      # Maximum angular velocity of the robot in radians/sec 1.5488
+  max_vel_theta: 0.25 #0.1                     # Maximum angular velocity of the robot in radians/sec 1.5488
+  acc_lim_x: 0.8  #0.2                          # Maximum translational acceleration of the robot in meters/sec^2
+  acc_lim_y: 0.8 #0.2                            # Maximum strafing acceleration of the robot
+  #acc_lim_theta: 0.9681                     # Maximum angular acceleration of the robot in radians/sec^2 1.936
+  acc_lim_theta: 0.4  #0.4                    # Maximum angular acceleration of the robot in radians/sec^2 1.936
   min_turning_radius: 0                     # omni-drive robot (can turn on place!)
 
   footprint_model:
-      #type: "point"
+    #type: "point"
     #type: "two_circles"
     #front_offset: 0.1
     #front_radius: 0.43
     #rear_offset: 0.1
     #rear_radius: 0.43
-    type: "polygon"
-    vertices: [[ 0.45, 0.35], [-0.45, 0.35], [-0.45,-0.35], [ 0.45,-0.35]]
+    type: "line"
+    line_start: [-0.105, 0.0]
+    line_end: [0.105, 0.0]
+    #type: "polygon"
+    #vertices: [[ 0.45, 0.35], [-0.45, 0.35], [-0.45,-0.35], [ 0.45,-0.35]]
 
   # GoalTolerance
 
@@ -45,12 +50,12 @@ TebLocalPlannerROS:
 
   # Obstacles
 
-  min_obstacle_dist: 0.1                    # This value must also include our robot radius, since footprint_model is set to "point".
+  min_obstacle_dist: 0.45                    # This value must also include our robot radius, since footprint_model is set to "point".
   include_costmap_obstacles: true
   include_dynamic_obstacles: true
   costmap_obstacles_behind_robot_dist: 2.0  # Limit the occupied local costmap obstacles taken into account for planning behind the robot (specify distance in meters).
   obstacle_poses_affected: 30               # Each obstacle position is attached to the closest pose on the trajectory in order to keep a distance. 
-  inflation_dist: 0.2                      # Buffer zone around obstacles with non-zero penalty costs
+  inflation_dist: 0.5                      # Buffer zone around obstacles with non-zero penalty costs
   legacy_obstacle_association: false        # The strategy of connecting trajectory poses with obstacles for optimization has been modified. You can switch to the old/previous strategy by setting this parameter to true. Old strategy: for each obstacle, find the nearest TEB pose; new strategy: for each teb pose, find only "relevant" obstacles.
   obstacle_association_force_inclusion_factor: 1.5  #The non-legacy obstacle association strategy tries to connect only relevant obstacles with the discretized trajectory during optimization. But all obstacles within a specifed distance are forced to be included
   obstacle_association_cutoff_factor: 5
@@ -66,9 +71,9 @@ TebLocalPlannerROS:
   weight_max_vel_x: 1                       # Optimization weight for satisfying the maximum allowed translational velocity.
   weight_max_vel_y: 1
   weight_max_vel_theta: 1                   # Optimization weight for satisfying the maximum allowed angular velocity.
-  weight_acc_lim_x: 0.5                       # Optimization weight for satisfying the maximum allowed translational acceleration.
-  weight_acc_lim_y: 0.5
-  weight_acc_lim_theta: 0.5                   # Optimization weight for satisfying the maximum allowed angular acceleration.
+  weight_acc_lim_x: 1                       # Optimization weight for satisfying the maximum allowed translational acceleration.
+  weight_acc_lim_y: 1
+  weight_acc_lim_theta: 1                   # Optimization weight for satisfying the maximum allowed angular acceleration.
   weight_kinematics_nh: 0                   # WE HAVE A HOLONOMIC ROBOT, JUST ADD A SMALL PENALTY
   weight_kinematics_forward_drive: 0        # Optimization weight for forcing the robot to choose only forward directions (positive transl. velocities).
   weight_kinematics_turning_radius: 0       # Optimization weight for enforcing a minimum turning radius (only for carlike robots).
